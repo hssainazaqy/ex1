@@ -38,7 +38,7 @@ int main (int argc, char** argv)
         }
 
     }
-
+    //---------------------------
     if(!strcmp(flag,"-i")){
 
         RLEListResult result1 = RLEListMap(list,MapFunction);
@@ -57,9 +57,11 @@ int main (int argc, char** argv)
             return -1;
         }
     }
+    //---------------------------
     RLEListDestroy(list);
     fclose(source);
     fclose(target);
+    //---------------------------
     return 0;
 }
 //--------------------------------------------------------

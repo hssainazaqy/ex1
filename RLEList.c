@@ -1,6 +1,9 @@
-#include "RLEList.h"
+#include <RLEList.h>
+#include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <assert.h>
+#include <stdio.h>
 
 typedef struct RLEList_t{
 
@@ -8,7 +11,7 @@ typedef struct RLEList_t{
     int appeared;
     struct RLEList_t *next;
 
-}*RLEList;
+} RLEList_t;
 
 //------------------------------------------------------
 //--------------Implementations-------------------------
@@ -19,7 +22,8 @@ RLEList RLEListCreate()
 
     if(!list)
     {
-	return NULL;
+        free(list);
+	    return NULL;
     }
 
     list->letter = '\0';
@@ -43,18 +47,23 @@ RLEListResult RLEListAppend(RLEList list, char value)
         return RLE_LIST_NULL_ARGUMENT;
     }
 
-    RLEList newList = RLEListCreate();
     RLEList lastNode = list;
-    
-    if(!newList){
-        return RLE_LIST_OUT_OF_MEMORY;
-    }
-    newList->letter = value;
 
     while (lastNode->next){
 	    lastNode = lastNode->next;
     }
-    lastNode->next = newList;
+
+    if(lastNode->letter == value){
+        lastNode->appeared++;
+    }
+    else{
+        RLEList newNode = RLEListCreate();
+        if(!newNode){
+            return RLE_LIST_OUT_OF_MEMORY;
+        }
+        newNode->letter = value;
+        lastNode->next = newNode;
+    }
     
     return RLE_LIST_SUCCESS;
 }
@@ -115,22 +124,23 @@ RLEListResult RLEListRemove(RLEList list, int index)
                 temp_list->appeared--;
             }
             else{
-                if(prev->letter == temp_list->next->letter)
-                {
-                    prev->appeared += temp_list->next->appeared;
-                    prev->next= temp_list->next->next;
-                    free(temp_list);
-                    return RLE_LIST_SUCCESS;
-                }
-                else{
-                    prev->next= temp_list->next;
-                    free(temp_list);
-                    return RLE_LIST_SUCCESS;
-                }
+
+                    if(prev->letter == temp_list->next->letter)
+                    {
+                        prev->appeared += temp_list->next->appeared;
+                        prev->next= temp_list->next->next;
+                        free(temp_list);
+                        return RLE_LIST_SUCCESS;
+                    }
+                    else{
+                         prev->next= temp_list->next;
+                        free(temp_list);
+                        return RLE_LIST_SUCCESS;
+                    }
             }
         }
     }
-    return RLE_LIST_SUCCESS;
+    return RLE_LIST_ERROR;//not supposed to get here
 }
 //------------------------------------------------------
 RLEListResult RLEListMap(RLEList list, MapFunction map_function)
@@ -166,6 +176,7 @@ char RLEListGet(RLEList list, int index, RLEListResult *result){
     int counter = index;
     RLEList temp_list = list;
     char wanted;
+
     while(temp_list)
     {
         if(temp_list->appeared > counter){
@@ -182,27 +193,36 @@ char RLEListGet(RLEList list, int index, RLEListResult *result){
     return 0;
 }
 //------------------------------------------------------
-char* RLEListExportToString(RLEList list, RLEListResult* result){
+char* RLEListExportToString(RLEList list, RLEListResult* result)
+{
     if(!list){
         *result = RLE_LIST_NULL_ARGUMENT;
         return NULL;
     }
 
     int size = RLEListSize(list);
-    char* tmp_list = (char*) malloc(sizeof(char)*size);
-    assert(tmp_list);
+    char* newString = (char*) malloc(sizeof(char)*size+1);
+
+    if(!newString)
+    {
+        free(newString);
+        return NULL;
+    }
+
     int index = 0;
 
     while (list){
-        tmp_list[index] = list->letter;
-        tmp_list[++index] = list->appeared;
-        tmp_list[++index] = '\n';
+        newString[index] = list->letter;
+        sprintf(newString[++index],"%c",list->appeared);
+        newString[++index] = '\n';
         list = list->next;
         index++;
     }
 
+    newString[++index] = '\0';
     *result = RLE_LIST_SUCCESS;
-    return tmp_list;
+    
+    return newString;
 }
 //------------------------------------------------------
 
