@@ -18,7 +18,7 @@ typedef struct RLEList_t{
 //------------------------------------------------------
 RLEList RLEListCreate()
 {	
-    RLEList list = (int*)malloc(sizeof(*list)); 
+    RLEList list = (RLEList*)malloc(sizeof(*list)); 
 
     if(!list)
     {
@@ -151,7 +151,6 @@ RLEListResult RLEListMap(RLEList list, MapFunction map_function)
     }
 
     RLEList temp_list = list;
-    int size = RLEListSize(list);
 
     while(temp_list)
     {
