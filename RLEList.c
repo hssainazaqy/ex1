@@ -18,7 +18,7 @@ typedef struct RLEList_t{
 //------------------------------------------------------
 RLEList RLEListCreate()
 {	
-    RLEList list = (RLEList*)malloc(sizeof(*list)); 
+    RLEList list = malloc(sizeof(*list)); 
 
     if(!list)
     {
@@ -210,9 +210,10 @@ char* RLEListExportToString(RLEList list, RLEListResult* result)
 
     int index = 0;
 
-    while (list){
+while(list){
         newString[index] = list->letter;
-        sprintf(newString[++index],"%c",list->appeared);
+        index++;
+        sprintf(newString+index, "%c", list->appeared);
         newString[++index] = '\n';
         list = list->next;
         index++;
