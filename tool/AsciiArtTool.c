@@ -1,6 +1,7 @@
 #include <RLEList.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include <stdbool.h>
 
 //------------------------------------------------------
@@ -9,18 +10,20 @@
 
 RLEList asciiArtRead(FILE* in_stream){
     RLEList new_list = RLEListCreate();
+    printf("part 9\n");
     FILE* ptr = in_stream;
     char curr_letter;
     if(!new_list ||!ptr){
         return NULL;
     }
+    printf("part 10\n");
     RLEList tmp_list = new_list;
-    int index = 0;
-    while(curr_letter != EOF){
-        //fscanf((ptr+index),"%c",curr_letter);
-        curr_letter = fgetc(ptr+index);
+    int stop = 0;
+    while(stop != EOF){
+        stop = fscanf((ptr),"%c",&curr_letter);
+        printf("part 11\n");
         RLEListAppend(tmp_list, curr_letter);
-        index++;      
+        printf("part 12\n");     
     }
     return new_list;
 }
@@ -37,14 +40,17 @@ RLEListResult asciiArtPrint(RLEList list, FILE* out_stream){
     RLEListResult *result = &res;
     for(int i = 0; i < size; i++){
         curr_letter = RLEListGet(tmp_list, i, result);
-        if(*result != RLE_LIST_SUCCESS){
+        printf("part got letter\n");
+        if(*result == RLE_LIST_SUCCESS){
             fprintf(ptr+i, "%c", curr_letter);
+        printf("part asciiArtPrint printed letter\n");
         }
         else{
-            printf("result in asciiArtPrint wasnt success, check RLEListGet \n");
+        printf("result in asciiArtPrint wasnt success, check RLEListGet \n");
             return RLE_LIST_ERROR;
         }
     }
+        printf("part RLEListGet ended in asciiArtPrint?\n");
     return RLE_LIST_SUCCESS;
 }
 //------------------------------------------------------

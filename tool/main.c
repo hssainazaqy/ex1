@@ -15,17 +15,23 @@ char mapFunction (char c);
 //--------------------------------------------------------
 int main (int argc, char** argv)
 {
+    printf("part 0\n");
     char *flag = argv[FLAG];
     char *source = argv[SOURCE];
     char *target = argv[TARGET];
+    printf("part 1\n");
     //---------------------------
     if(!flag||!source||!target){
         return -1;
     }
+    printf("part 2\n");
     //---------------------------
     FILE* file_source = fopen(source,"r");
+    printf("part 3\n");
     FILE* file_target = fopen(target,"w");
+    printf("part 4\n");
     RLEList list = asciiArtRead(file_source);
+    printf("part 5\n");
     //---------------------------
     if(!strcmp(flag,"-e")){
 
@@ -38,6 +44,7 @@ int main (int argc, char** argv)
         }
 
     }
+    printf("part 6\n");
     //---------------------------
     if(!strcmp(flag,"-i")){
 
@@ -48,14 +55,16 @@ int main (int argc, char** argv)
             fclose(file_target);
             return -1;
         }
-
+    printf("part 7\n");
         RLEListResult result2 = asciiArtPrint(list, file_target);
+        printf("part asciiprint\n");
         if(result2 != RLE_LIST_SUCCESS){
             RLEListDestroy(list);
             fclose(file_source);
             fclose(file_target);
             return -1;
         }
+    printf("part 8\n");
     }
     //---------------------------
     RLEListDestroy(list);
@@ -66,7 +75,6 @@ int main (int argc, char** argv)
 }
 //--------------------------------------------------------
 char mapFunction (char letter){
-
     if(letter == EMPTY_SPACE){
         return AT_SIGN;
     }
