@@ -10,20 +10,24 @@
 
 RLEList asciiArtRead(FILE* in_stream){
     RLEList new_list = RLEListCreate();
-    printf("part 9\n");
     FILE* ptr = in_stream;
     char curr_letter;
+
     if(!new_list ||!ptr){
         return NULL;
     }
-    printf("part 10\n");
-    RLEList tmp_list = new_list;
-    int stop = 0;
-    while(stop != EOF){
-        stop = fscanf((ptr),"%c",&curr_letter);
-        printf("part 11\n");
-        RLEListAppend(tmp_list, curr_letter);
-        printf("part 12\n");     
+
+    //RLEList tmp_list = new_list;
+    RLEListResult result = RLE_LIST_SUCCESS;
+
+    //int stop = 0;
+    while(curr_letter!= EOF){
+        //stop = fscanf((ptr),"%c",&curr_letter);
+        curr_letter = fgetc(ptr);
+        result = RLEListAppend(new_list, curr_letter);
+        if(result!= RLE_LIST_SUCCESS){
+            return NULL;
+        }
     }
     return new_list;
 }
@@ -40,17 +44,13 @@ RLEListResult asciiArtPrint(RLEList list, FILE* out_stream){
     RLEListResult *result = &res;
     for(int i = 0; i < size; i++){
         curr_letter = RLEListGet(tmp_list, i, result);
-        printf("part got letter\n");
         if(*result == RLE_LIST_SUCCESS){
-            fprintf(ptr+i, "%c", curr_letter);
-        printf("part asciiArtPrint printed letter\n");
+            fprintf(ptr, "%c", curr_letter);
         }
         else{
-        printf("result in asciiArtPrint wasnt success, check RLEListGet \n");
-            return RLE_LIST_ERROR;
+            return result;
         }
     }
-        printf("part RLEListGet ended in asciiArtPrint?\n");
     return RLE_LIST_SUCCESS;
 }
 //------------------------------------------------------
@@ -67,8 +67,9 @@ RLEListResult asciiArtPrintEncoded(RLEList list, FILE* out_stream){
      FILE* ptr = out_stream;
      int len_str = strlen(tmp_str);
      for(int i = 0; i < len_str; i++){
-         fprintf(ptr+i, "%c", tmp_str[i]);
+         fprintf(ptr, "%c", tmp_str[i]);
      }
+     free(tmp_str);
      return RLE_LIST_SUCCESS;
  }
 //------------------------------------------------------

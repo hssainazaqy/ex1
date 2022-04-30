@@ -13,6 +13,7 @@ typedef struct RLEList_t{
 
 } RLEList_t;
 
+#define THREE 3
 //------------------------------------------------------
 //--------------Implementations-------------------------
 //------------------------------------------------------
@@ -64,7 +65,7 @@ RLEListResult RLEListAppend(RLEList list, char value)
         newNode->letter = value;
         lastNode->next = newNode;
     }
-    
+
     return RLE_LIST_SUCCESS;
 }
 //------------------------------------------------------
@@ -75,11 +76,11 @@ int RLEListSize(RLEList list)
     }
 
     int counter = 0;
-    RLEList curr = list;
+    //RLEList curr = list;
 
-    while (curr){
-        counter += curr->appeared;
-        curr = curr->next;
+    while (list){
+        counter += list->appeared;
+        list = list->next;
     }
     return counter;
 }
@@ -89,11 +90,9 @@ RLEListResult RLEListRemove(RLEList list, int index)
     if(!list){
         return RLE_LIST_NULL_ARGUMENT;
     }
-
     if(index >= RLEListSize(list)){
         return RLE_LIST_INDEX_OUT_OF_BOUNDS;
     }
-
     RLEList temp_list = list;
     int indexes_left = index;
     //----------head case------------
@@ -112,28 +111,24 @@ RLEListResult RLEListRemove(RLEList list, int index)
     indexes_left -= prev->appeared;
     temp_list = temp_list->next; 
     while(temp_list){
-        if(indexes_left +1 > (temp_list->appeared))
-        {
+        if(indexes_left +1 > (temp_list->appeared)){
             indexes_left -= temp_list->appeared;
             temp_list = temp_list->next;
             prev = prev->next;
         }
         else{
-            if(temp_list->appeared > 1)
-            {
+            if(temp_list->appeared > 1){
                 temp_list->appeared--;
             }
             else{
-
-                    if(prev->letter == temp_list->next->letter)
-                    {
+                    if(prev->letter == temp_list->next->letter){
                         prev->appeared += temp_list->next->appeared;
                         prev->next= temp_list->next->next;
                         free(temp_list);
                         return RLE_LIST_SUCCESS;
                     }
                     else{
-                         prev->next= temp_list->next;
+                        prev->next= temp_list->next;
                         free(temp_list);
                         return RLE_LIST_SUCCESS;
                     }
@@ -150,12 +145,16 @@ RLEListResult RLEListMap(RLEList list, MapFunction map_function)
         return RLE_LIST_NULL_ARGUMENT;
     }
 
-    RLEList temp_list = list;
-
-    while(temp_list)
+    while(list)
     {
-        temp_list->letter = map_function(temp_list->letter);
-        temp_list = temp_list->next;
+        //---------------DELETE AFTER TESTING------------------
+        printf("%c",list->letter);
+        //-----------------------------------------------------
+        list->letter = map_function(list->letter);
+        //---------------DELETE AFTER TESTING------------------
+        printf("%c",list->letter);
+        //-----------------------------------------------------
+        list = list->next;
     }
     return RLE_LIST_SUCCESS;
 }
@@ -165,7 +164,6 @@ char RLEListGet(RLEList list, int index, RLEListResult *result){
         *result = RLE_LIST_NULL_ARGUMENT;
         return 0;
     }
-
     if(RLEListSize(list) <= index)
      {
          *result = RLE_LIST_INDEX_OUT_OF_BOUNDS;
@@ -188,7 +186,7 @@ char RLEListGet(RLEList list, int index, RLEListResult *result){
             temp_list = temp_list->next;
         }
     }
-    *result = RLE_LIST_INDEX_OUT_OF_BOUNDS;
+    *result = RLE_LIST_ERROR;
     return 0;
 }
 //------------------------------------------------------
@@ -200,7 +198,7 @@ char* RLEListExportToString(RLEList list, RLEListResult* result)
     }
 
     int size = RLEListSize(list);
-    char* newString = (char*) malloc(sizeof(char)*size+1);
+    char* newString = (char*) malloc(sizeof(char)*(size*THREE+1));
 
     if(!newString)
     {
@@ -214,15 +212,27 @@ while(list){
         newString[index] = list->letter;
         index++;
         sprintf(newString+index, "%c", list->appeared);
-        newString[++index] = '\n';
+        index++;
+        newString[index] = '\n';
         list = list->next;
         index++;
     }
 
-    newString[++index] = '\0';
+    newString[index] = '\0';
     *result = RLE_LIST_SUCCESS;
     
     return newString;
 }
 //------------------------------------------------------
-
+/*void RLEListPrintList (RLEList list){
+    while(list){
+        char curr_letter = list->letter;
+        int times = list->appeared;
+        for(int i =0 ; i< times; i++){
+            printf("%c ",curr_letter);
+        }
+        printf("\n");
+        list = list->next;
+    }
+}
+*/
