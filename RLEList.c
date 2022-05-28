@@ -1,17 +1,17 @@
-#include <RLEList.h>
+#include "RLEList.h"
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
 
-typedef struct RLEList_t{
+struct RLEList_t{
 
     char letter;
     int appeared;
-    struct RLEList_t *next;
+    RLEList next;
 
-} RLEList_t;
+};
 
 #define THREE 3
 //------------------------------------------------------
@@ -19,7 +19,7 @@ typedef struct RLEList_t{
 //------------------------------------------------------
 RLEList RLEListCreate()
 {
-    RLEList list = malloc(sizeof(RLEList)); 
+    RLEList list = malloc(sizeof(*list)); 
 
     if(!list)
     {
@@ -35,8 +35,9 @@ RLEList RLEListCreate()
 }
 //------------------------------------------------------
 void RLEListDestroy(RLEList list){
+    RLEList toDelete;
     while(list){
-        RLEList toDelete = list;
+        toDelete = list;
         list = list->next;
         free(toDelete);
     }
@@ -48,18 +49,17 @@ RLEListResult RLEListAppend(RLEList list, char value)
         return RLE_LIST_NULL_ARGUMENT;
     }
 
-    RLEList lastNode = list;
 
-    while (lastNode->next){
-	    lastNode = lastNode->next;
+    while (list->next){
+	    list = list->next;
     }
     
-    if(lastNode->letter == value){
-        lastNode->appeared++;
+    if(list->letter == value){
+        list->appeared++;
     }
-    else if(lastNode->letter == '\0'){
-        lastNode->letter = value;
-        lastNode->appeared = 1;
+    else if(list->letter == '\0'){
+        list->letter = value;
+        list->appeared = 1;
     }
     else{
         RLEList newNode = RLEListCreate();
@@ -68,7 +68,7 @@ RLEListResult RLEListAppend(RLEList list, char value)
         }
         newNode->letter = value;
         newNode->appeared = 1;
-        lastNode->next = newNode;
+        list->next = newNode;
     }
     
 
@@ -97,47 +97,48 @@ RLEListResult RLEListRemove(RLEList list, int index)
     if(!list){
         return RLE_LIST_NULL_ARGUMENT;
     }
-    if(index >= RLEListSize(list)){
+    if(index >= RLEListSize(list)||index < 0){
         return RLE_LIST_INDEX_OUT_OF_BOUNDS;
     }
-    RLEList temp_list = list;
+
     int indexes_left = index;
     //----------head case------------
-    if(temp_list->appeared > indexes_left){
-        if(temp_list->appeared == 1){
+    if(list->appeared > indexes_left){
+        if(list->appeared == 1){
+            RLEList tmplist = list;
             list = list->next;
-            free(temp_list);
+            free(tmplist);
         }
         else{
-            temp_list->appeared--;
+            list->appeared--;
         }
         return RLE_LIST_SUCCESS;
     }
     //----------rest case------------
     RLEList prev = list;
     indexes_left -= prev->appeared;
-    temp_list = temp_list->next; 
+    list = list->next; 
 
-    while(temp_list){
-        if(indexes_left +1 > (temp_list->appeared)){
-            indexes_left -= temp_list->appeared;
-            temp_list = temp_list->next;
+    while(list){
+        if(indexes_left +1 > (list->appeared)){
+            indexes_left -= list->appeared;
+            list = list->next;
             prev = prev->next;
         }
         else{
-            if(temp_list->appeared > 1){
-                temp_list->appeared--;
+            if(list->appeared > 1){
+                list->appeared--;
             }
             else{
-                    if(prev->letter == temp_list->next->letter){
-                        prev->appeared += temp_list->next->appeared;
-                        prev->next= temp_list->next->next;
-                        free(temp_list);
+                    if(prev->letter == list->next->letter){
+                        prev->appeared += list->next->appeared;
+                        prev->next= list->next->next;
+                        free(list);
                         return RLE_LIST_SUCCESS;
                     }
                     else{
-                        prev->next= temp_list->next;
-                        free(temp_list);
+                        prev->next= list->next;
+                        free(list);
                         return RLE_LIST_SUCCESS;
                     }
             }
@@ -174,18 +175,21 @@ char RLEListGet(RLEList list, int index, RLEListResult *result){
         return '\0';
     }
 
+    bool canReturnResult = (result!=NULL);
     int counter = 0;
-
+    char wanted = '\0';
     while(list){
         counter += list->appeared;
         if(counter>index){
-            *result = RLE_LIST_SUCCESS;
-            return list->letter;
+            wanted = list->letter;
+            break;
         }
         list = list->next;
     }
-    *result = RLE_LIST_ERROR;
-    return '\0';
+    if(canReturnResult){
+        *result = RLE_LIST_SUCCESS;
+    }
+    return wanted;
 }
 //------------------------------------------------------
 char* RLEListExportToString(RLEList list, RLEListResult* result)

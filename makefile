@@ -6,7 +6,7 @@ OBJS=RLEList.o $(TOOL)AsciiArtTool.o $(TOOL)main.o
 EXEC=AsciiArtTool
 DEBUG_FLAG:=-DNDEBUG#assign -g for debug, or -DNDEBUG to turnoff assert
 HW_FLAG=-I/home/mtm/public/2122b/ex1 -Itool
-COMP_FLAG=-std=c99 -Wall -pedantic-errors -Werror $(HW_FLAG)
+COMP_FLAG=-std=c99 -g -Wall -pedantic-errors -Werror $(HW_FLAG)
 
 $(EXEC) : $(OBJS)
 		$(CC) $(DEBUG_FLAG) $(COMP_FLAG) $(OBJS) -o $@
